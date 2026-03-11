@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#f0f2f7" />
+  <title>Value for Money</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-start: #e8ecf3;
+      --bg-end:   #d4dae8;
+      --surface:  #ffffff;
+      --surface2: #f4f6fb;
+      --accent:   #5b6af0;
+      --accent2:  #7c8bff;
+      --best:     #22c27a;
+      --text-h:   #1a1d2e;
+      --text-b:   #3d4166;
+      --text-m:   #7179a6;
+      --shadow-sm: 0 2px 8px rgba(91,106,240,.10), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 8px 28px rgba(91,106,240,.14), 0 2px 6px rgba(0,0,0,.07);
+      --shadow-lg: 0 18px 48px rgba(91,106,240,.20), 0 4px 12px rgba(0,0,0,.08);
+      --radius:   16px;
+      --radius-sm: 10px;
+      --transition: .2s cubic-bezier(.4,0,.2,1);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+      background: linear-gradient(145deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      background-attachment: fixed;
+      color: var(--text-b);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      overscroll-behavior: none;
+    }
+
+    /* ── App Shell ────────────────────────────────────────── */
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+    }
+
+    /* ── Header ───────────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    header .icon {
+      font-size: 2.6rem;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 8px rgba(91,106,240,.3));
+      animation: float 3.6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-h);
+      letter-spacing: -.02em;
+    }
+    header p {
+      font-size: .82rem;
+      color: var(--text-m);
+      margin-top: 4px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 20px 18px;
+      width: 100%;
+      max-width: 480px;
+      transition: box-shadow var(--transition);
+    }
+
+    /* ── Column Labels ────────────────────────────────────── */
+    .col-labels {
+      display: grid;
+      grid-template-columns: 2fr 1.3fr 1.3fr 36px;
+      gap: 8px;
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+    .col-labels span {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-m);
+    }
+
+    /* ── Item Rows ────────────────────────────────────────── */
+    #items-container { display: flex; flex-direction: column; gap: 10px; }
+
+    .item-row {
+      background: var(--surface2);
+      border: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      padding: 12px 12px 10px;
+      transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+      touch-action: manipulation;
+    }
+    .item-row.is-best {
+      border-color: var(--best);
+      box-shadow: 0 0 0 4px rgba(34,194,122,.15), var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .row-inputs {
+      display: grid;
+      grid-template-columns: 2fr 1.3fr 1.3fr 36px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Inputs ───────────────────────────────────────────── */
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid #dde1ee;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: .92rem;
+      color: var(--text-h);
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+      touch-action: manipulation;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(91,106,240,.18);
+    }
+    input::placeholder { color: #bec3d8; }
+
+    /* ── Remove Button ────────────────────────────────────── */
+    .btn-remove {
+      background: none;
+      border: 1.5px solid #dde1ee;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #bec3d8;
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: background var(--transition), border-color var(--transition), color var(--transition);
+      touch-action: manipulation;
+    }
+    .btn-remove:hover, .btn-remove:active {
+      background: #ffeef0;
+      border-color: #ffb3bb;
+      color: #e84c6a;
+    }
+    .btn-remove:disabled {
+      opacity: .3;
+      pointer-events: none;
+    }
+
+    /* ── Result Badge ─────────────────────────────────────── */
+    .result-area {
+      margin-top: 9px;
+      min-height: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-badge {
+      display: none;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1.5px solid #dde1ee;
+      color: var(--text-m);
+      letter-spacing: .01em;
+    }
+    .result-badge.visible { display: inline-block; }
+    .item-row.is-best .result-badge {
+      background: var(--best);
+      border-color: var(--best);
+      color: #fff;
+    }
+    .best-label {
+      display: none;
+      font-size: .7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--best);
+    }
+    .item-row.is-best .best-label { display: inline; }
+
+    /* ── Action Buttons ───────────────────────────────────── */
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 14px 20px;
+      width: 100%;
+      touch-action: manipulation;
+      transition: box-shadow var(--transition), transform var(--transition), opacity var(--transition);
+      letter-spacing: .01em;
+    }
+    .btn:active { transform: scale(.97); }
+
+    .btn-add {
+      background: var(--surface2);
+      color: var(--accent);
+      border: 1.5px dashed #bcc2e8;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-add:hover { box-shadow: var(--shadow-md); border-style: solid; }
+    .btn-add:disabled { opacity: .4; pointer-events: none; }
+
+    .btn-calc {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      box-shadow: var(--shadow-md);
+    }
+    .btn-calc:hover { box-shadow: var(--shadow-lg); }
+
+    .btn-reset {
+      background: none;
+      color: var(--text-m);
+      font-size: .82rem;
+      font-weight: 600;
+      padding: 8px;
+      border: none;
+      box-shadow: none;
+      opacity: .7;
+    }
+    .btn-reset:hover { opacity: 1; }
+
+    /* ── Toast ────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--text-h);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-size: .82rem;
+      font-weight: 600;
+      pointer-events: none;
+      transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s;
+      opacity: 0;
+      white-space: nowrap;
+      z-index: 999;
+      box-shadow: var(--shadow-lg);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      margin-top: 32px;
+      font-size: .72rem;
+      color: var(--text-m);
+      opacity: .6;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <span class="icon">⚖️</span>
+    <h1>Value for Money</h1>
+    <p>Find the best deal. Higher value = more per dollar.</p>
+  </header>
+
+  <div class="card">
+    <div class="col-labels">
+      <span>Item Name</span>
+      <span>Price</span>
+      <span>Amount</span>
+      <span></span>
+    </div>
+
+    <div id="items-container"></div>
+
+    <div class="actions">
+      <button class="btn btn-add" id="btn-add">＋ Add Item</button>
+      <button class="btn btn-calc" id="btn-calc">Calculate Best Value</button>
+      <button class="btn btn-reset" id="btn-reset">Reset All</button>
+    </div>
+  </div>
+
+  <footer>Antigravity Minimalist · self-contained PWA</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const MAX_ROWS = 10;
+  const MIN_ROWS = 2;
+  const INITIAL_ROWS = 4;
+
+  const container = document.getElementById('items-container');
+  const btnAdd    = document.getElementById('btn-add');
+  const btnCalc   = document.getElementById('btn-calc');
+  const btnReset  = document.getElementById('btn-reset');
+  const toast     = document.getElementById('toast');
+
+  let rowCount = 0;
+
+  // ── Toast ───────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  // ── Create Row ──────────────────────────────────────────
+  function createRow(idx) {
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.dataset.id = idx;
+
+    div.innerHTML = `
+      <div class="row-inputs">
+        <input type="text"
+               class="inp-name"
+               placeholder="Item ${idx}"
+               autocomplete="off"
+               spellcheck="false" />
+        <input type="number"
+               class="inp-price"
+               inputmode="decimal"
+               placeholder="0.00"
+               min="0"
+               step="any" />
+        <input type="number"
+               class="inp-meas"
+               inputmode="decimal"
+               placeholder="0"
+               min="0"
+               step="any" />
+        <button class="btn-remove" title="Remove row">✕</button>
+      </div>
+      <div class="result-area">
+        <span class="result-badge"></span>
+        <span class="best-label">🏆 Best Deal</span>
+      </div>`;
+
+    const btnRemove = div.querySelector('.btn-remove');
+    btnRemove.addEventListener('click', () => removeRow(div));
+
+    container.appendChild(div);
+    rowCount++;
+    updateUI();
+    return div;
+  }
+
+  // ── Remove Row ──────────────────────────────────────────
+  function removeRow(div) {
+    if (rowCount <= MIN_ROWS) {
+      showToast(`Keep at least ${MIN_ROWS} rows.`);
+      return;
+    }
+    div.style.opacity = '0';
+    div.style.transform = 'scale(.95)';
+    div.style.transition = 'opacity .2s, transform .2s';
+    setTimeout(() => { div.remove(); rowCount--; updateUI(); clearResults(); }, 200);
+  }
+
+  // ── Update UI State ─────────────────────────────────────
+  function updateUI() {
+    btnAdd.disabled = rowCount >= MAX_ROWS;
+    const rows = container.querySelectorAll('.item-row');
+    rows.forEach(r => {
+      r.querySelector('.btn-remove').disabled = rowCount <= MIN_ROWS;
+    });
+    if (rowCount >= MAX_ROWS) {
+      btnAdd.textContent = 'Max 10 items reached';
+    } else {
+      btnAdd.textContent = `＋ Add Item  (${rowCount}/${MAX_ROWS})`;
+    }
+  }
+
+  // ── Clear Results ───────────────────────────────────────
+  function clearResults() {
+    container.querySelectorAll('.item-row').forEach(row => {
+      row.classList.remove('is-best');
+      const badge = row.querySelector('.result-badge');
+      badge.classList.remove('visible');
+      badge.textContent = '';
+    });
+  }
+
+  // ── Calculate ───────────────────────────────────────────
+  function calculate() {
+    clearResults();
+
+    const rows = Array.from(container.querySelectorAll('.item-row'));
+    const results = [];
+
+    rows.forEach(row => {
+      const price = parseFloat(row.querySelector('.inp-price').value);
+      const meas  = parseFloat(row.querySelector('.inp-meas').value);
+
+      // Skip empty / invalid rows
+      if (!Number.isFinite(price) || !Number.isFinite(meas)) return;
+      if (price <= 0 || meas <= 0) return;
+
+      const value = meas / price;
+      results.push({ row, value });
+    });
+
+    if (results.length < 2) {
+      showToast('Enter at least 2 valid rows (price & amount > 0).');
+      return;
+    }
+
+    const maxVal = Math.max(...results.map(r => r.value));
+
+    results.forEach(({ row, value }) => {
+      const badge = row.querySelector('.result-badge');
+      badge.textContent = `${value.toFixed(4)} / $`;
+      badge.classList.add('visible');
+      if (value === maxVal) {
+        row.classList.add('is-best');
+      }
+    });
+
+    // Scroll best into view smoothly
+    const best = container.querySelector('.item-row.is-best');
+    if (best) best.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    showToast('🏆 Best deal highlighted!');
+  }
+
+  // ── Reset ───────────────────────────────────────────────
+  function reset() {
+    container.innerHTML = '';
+    rowCount = 0;
+    for (let i = 1; i <= INITIAL_ROWS; i++) createRow(i);
+    updateUI();
+  }
+
+  // ── Events ──────────────────────────────────────────────
+  btnAdd.addEventListener('click', () => {
+    if (rowCount < MAX_ROWS) {
+      const row = createRow(rowCount + 1);
+      // Animate in
+      row.style.opacity = '0';
+      row.style.transform = 'translateY(8px)';
+      row.style.transition = 'opacity .25s, transform .25s';
+      requestAnimationFrame(() => {
+        row.style.opacity = '1';
+        row.style.transform = 'translateY(0)';
+      });
+      clearResults();
+    }
+  });
+
+  btnCalc.addEventListener('click', calculate);
+  btnReset.addEventListener('click', reset);
+
+  // Clear results when any input changes
+  container.addEventListener('input', clearResults);
+
+  // ── Init ────────────────────────────────────────────────
+  reset();
+</script>
+</body>
+</html>
