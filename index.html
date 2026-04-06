@@ -162,10 +162,9 @@
     /* ── Column Labels ────────────────────────────────────── */
     .col-labels {
       display: grid;
-      grid-template-columns: 32px 1.1fr 1.1fr 1.1fr 36px;
+      grid-template-columns: 32px 1.1fr 1.3fr 36px;
       gap: 6px;
       margin-bottom: 8px;
-      padding: 0 2px;
     }
 
     .col-labels span {
@@ -174,11 +173,6 @@
       text-transform: uppercase;
       letter-spacing: .07em;
       color: var(--text-m);
-    }
-
-    .col-labels .col-convert {
-      color: var(--convert);
-      opacity: .7;
     }
 
     /* ── Rows ─────────────────────────────────────────────── */
@@ -204,10 +198,38 @@
 
     .row-inputs {
       display: grid;
-      grid-template-columns: 32px 1.1fr 1.1fr 1.1fr 36px;
+      grid-template-columns: 32px 1.1fr 1.3fr 36px;
       gap: 6px;
-      align-items: center;
+      align-items: start;
     }
+
+    /* ── Volume cell — stacks main input + optional sub-input ─ */
+    .vol-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .inp-convert {
+      font-size: .76rem !important;
+      padding: 5px 8px !important;
+      border-style: dashed !important;
+      border-color: var(--convert-border) !important;
+      background: rgba(251,191,36,.04) !important;
+      caret-color: var(--convert) !important;
+      color: var(--convert) !important;
+    }
+
+    .inp-convert:focus {
+      border-style: solid !important;
+      border-color: var(--convert) !important;
+      box-shadow: 0 0 0 2.5px var(--convert-sub) !important;
+    }
+
+    .inp-convert::placeholder { color: var(--convert); opacity: .4; }
+
+    /* Dim the main vol field when convert is filled */
+    .vol-dim { opacity: .38; }
 
     /* ── Item number badge ────────────────────────────────── */
     .item-num {
@@ -263,27 +285,7 @@
 
     input::placeholder { color: var(--text-m); opacity: .8; }
 
-    /* Convert field — styled differently to show it's optional */
-    .inp-convert {
-      border-style: dashed !important;
-      border-color: var(--convert-border) !important;
-      background: rgba(251,191,36,.04) !important;
-      caret-color: var(--convert) !important;
-      color: var(--convert) !important;
-    }
-
-    .inp-convert:focus {
-      border-style: solid !important;
-      border-color: var(--convert) !important;
-      box-shadow: 0 0 0 2.5px var(--convert-sub) !important;
-    }
-
-    .inp-convert::placeholder { color: var(--convert); opacity: .35; }
-
-    /* When convert field has a value, dim the volume field to show it won't be used */
-    .vol-dim {
-      opacity: .4;
-    }
+    /* (inp-convert & vol-dim defined above with vol-cell) */
 
     /* ── Remove button ────────────────────────────────────── */
     .btn-remove {
@@ -301,6 +303,7 @@
       transition: background var(--ease), border-color var(--ease), color var(--ease);
       touch-action: manipulation;
       flex-shrink: 0;
+      margin-top: 1px; /* align with first input in vol-cell */
     }
 
     .btn-remove:hover, .btn-remove:active {
@@ -506,8 +509,8 @@
       .app { padding: 24px 10px 52px; }
       .card { padding: 16px 11px 15px; }
       header h1 { font-size: 1.55rem; }
-      .col-labels { grid-template-columns: 28px 1fr 1fr 1fr 30px; gap: 4px; }
-      .row-inputs  { grid-template-columns: 28px 1fr 1fr 1fr 30px; gap: 4px; }
+      .col-labels { grid-template-columns: 28px 1fr 1.2fr 30px; gap: 4px; }
+      .row-inputs  { grid-template-columns: 28px 1fr 1.2fr 30px; gap: 4px; }
       .item-num { width: 28px; height: 28px; font-size: .66rem; }
       .btn-remove { width: 30px; height: 30px; font-size: .85rem; }
     }
@@ -531,22 +534,12 @@
     <div class="col-labels">
       <span></span>
       <span>Price ($)</span>
-      <span>Volume</span>
-      <span class="col-convert">→ ml <em style="font-style:normal;opacity:.6">(opt)</em></span>
+      <span>Volume (ml)</span>
       <span></span>
     </div>
 
     <!-- Rows -->
     <div id="items-container"></div>
-
-    <!-- Hint below grid -->
-    <div class="col-hint">
-      <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Fill "→ ml" only when units differ (e.g. 5.3 L → 5300). Leave blank if volume is already in ml.
-    </div>
 
     <div class="divider"></div>
 
@@ -627,10 +620,13 @@
         <div class="item-num">${idx}</div>
         <input type="number" class="inp-price" inputmode="decimal"
                placeholder="0.00" min="0" step="any" />
-        <input type="number" class="inp-meas"  inputmode="decimal"
-               placeholder="ml / L / …" min="0" step="any" />
-        <input type="number" class="inp-convert" inputmode="decimal"
-               placeholder="in ml" min="0" step="any" title="Optional: enter the volume converted to ml" />
+        <div class="vol-cell">
+          <input type="number" class="inp-meas" inputmode="decimal"
+                 placeholder="e.g. 600" min="0" step="any" />
+          <input type="number" class="inp-convert" inputmode="decimal"
+                 placeholder="→ in ml (if unit differs)" min="0" step="any"
+                 title="Optional: if volume above is not in ml, enter the ml equivalent here" />
+        </div>
         <button class="btn-remove" title="Remove" aria-label="Remove row">✕</button>
       </div>
       <div class="result-area">
