@@ -13,12 +13,10 @@
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <!-- iOS Home Screen -->
-  <!-- Primary explicit links (highest priority) -->
   <link rel="apple-touch-icon"              href="apple-touch-icon.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon.png" />
   <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon.png" />
-  <!-- Fallback using favicon.png -->
   <link rel="apple-touch-icon"              href="favicon.png" />
   <meta name="apple-mobile-web-app-title" content="CP Cal" />
 
@@ -55,6 +53,11 @@
       /* Danger */
       --danger:     #f87171;
       --danger-sub: rgba(248,113,113,.10);
+
+      /* Convert accent — soft amber */
+      --convert:     #fbbf24;
+      --convert-sub: rgba(251,191,36,.10);
+      --convert-border: rgba(251,191,36,.30);
 
       /* Text */
       --text-h:   #e8e8ee;
@@ -95,7 +98,7 @@
       flex-direction: column;
       align-items: center;
       padding: 36px 16px 60px;
-      max-width: 500px;
+      max-width: 520px;
       margin: 0 auto;
     }
 
@@ -159,18 +162,23 @@
     /* ── Column Labels ────────────────────────────────────── */
     .col-labels {
       display: grid;
-      grid-template-columns: 2fr 1.15fr 1.15fr 36px;
-      gap: 8px;
+      grid-template-columns: 32px 1.1fr 1.1fr 1.1fr 36px;
+      gap: 6px;
       margin-bottom: 8px;
       padding: 0 2px;
     }
 
     .col-labels span {
-      font-size: .64rem;
+      font-size: .62rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .07em;
       color: var(--text-m);
+    }
+
+    .col-labels .col-convert {
+      color: var(--convert);
+      opacity: .7;
     }
 
     /* ── Rows ─────────────────────────────────────────────── */
@@ -196,13 +204,36 @@
 
     .row-inputs {
       display: grid;
-      grid-template-columns: 2fr 1.15fr 1.15fr 36px;
-      gap: 8px;
+      grid-template-columns: 32px 1.1fr 1.1fr 1.1fr 36px;
+      gap: 6px;
       align-items: center;
     }
 
+    /* ── Item number badge ────────────────────────────────── */
+    .item-num {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text-m);
+      letter-spacing: .01em;
+      flex-shrink: 0;
+      transition: background var(--ease), border-color var(--ease), color var(--ease);
+    }
+
+    .item-row.is-best .item-num {
+      background: var(--best-sub);
+      border-color: var(--best-border);
+      color: var(--best);
+    }
+
     /* ── Inputs ───────────────────────────────────────────── */
-    input[type="text"],
     input[type="number"] {
       width: 100%;
       background: var(--surface3);
@@ -231,6 +262,28 @@
     }
 
     input::placeholder { color: var(--text-m); opacity: .8; }
+
+    /* Convert field — styled differently to show it's optional */
+    .inp-convert {
+      border-style: dashed !important;
+      border-color: var(--convert-border) !important;
+      background: rgba(251,191,36,.04) !important;
+      caret-color: var(--convert) !important;
+      color: var(--convert) !important;
+    }
+
+    .inp-convert:focus {
+      border-style: solid !important;
+      border-color: var(--convert) !important;
+      box-shadow: 0 0 0 2.5px var(--convert-sub) !important;
+    }
+
+    .inp-convert::placeholder { color: var(--convert); opacity: .35; }
+
+    /* When convert field has a value, dim the volume field to show it won't be used */
+    .vol-dim {
+      opacity: .4;
+    }
 
     /* ── Remove button ────────────────────────────────────── */
     .btn-remove {
@@ -298,6 +351,21 @@
     }
 
     .item-row.is-best .best-label { display: inline; }
+
+    /* ── Hint row (convert column hint) ───────────────────── */
+    .col-hint {
+      margin-top: 4px;
+      padding: 0 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .64rem;
+      color: var(--convert);
+      opacity: .55;
+      letter-spacing: .01em;
+    }
+
+    .col-hint svg { flex-shrink: 0; }
 
     /* ── Divider ──────────────────────────────────────────── */
     .divider {
@@ -434,10 +502,14 @@
       letter-spacing: .04em;
     }
 
-    @media (max-width: 360px) {
-      .app { padding: 24px 12px 52px; }
-      .card { padding: 16px 13px 15px; }
+    @media (max-width: 380px) {
+      .app { padding: 24px 10px 52px; }
+      .card { padding: 16px 11px 15px; }
       header h1 { font-size: 1.55rem; }
+      .col-labels { grid-template-columns: 28px 1fr 1fr 1fr 30px; gap: 4px; }
+      .row-inputs  { grid-template-columns: 28px 1fr 1fr 1fr 30px; gap: 4px; }
+      .item-num { width: 28px; height: 28px; font-size: .66rem; }
+      .btn-remove { width: 30px; height: 30px; font-size: .85rem; }
     }
   </style>
 </head>
@@ -457,14 +529,24 @@
 
     <!-- Column labels -->
     <div class="col-labels">
-      <span>Item</span>
+      <span></span>
       <span>Price ($)</span>
-      <span>Volume (ml)</span>
+      <span>Volume</span>
+      <span class="col-convert">→ ml <em style="font-style:normal;opacity:.6">(opt)</em></span>
       <span></span>
     </div>
 
     <!-- Rows -->
     <div id="items-container"></div>
+
+    <!-- Hint below grid -->
+    <div class="col-hint">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Fill "→ ml" only when units differ (e.g. 5.3 L → 5300). Leave blank if volume is already in ml.
+    </div>
 
     <div class="divider"></div>
 
@@ -527,6 +609,14 @@
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
+  /* Dim/undim vol field based on whether convert field is filled */
+  function syncVolDim(row) {
+    const inpVol     = row.querySelector('.inp-meas');
+    const inpConvert = row.querySelector('.inp-convert');
+    const hasConvert = inpConvert.value.trim() !== '';
+    inpVol.classList.toggle('vol-dim', hasConvert);
+  }
+
   /* Create row */
   function createRow(idx) {
     const div = document.createElement('div');
@@ -534,19 +624,28 @@
     div.dataset.id = idx;
     div.innerHTML = `
       <div class="row-inputs">
-        <input type="text"   class="inp-name"  placeholder="Item ${idx}"
-               autocomplete="off" spellcheck="false" inputmode="text" />
+        <div class="item-num">${idx}</div>
         <input type="number" class="inp-price" inputmode="decimal"
                placeholder="0.00" min="0" step="any" />
         <input type="number" class="inp-meas"  inputmode="decimal"
-               placeholder="100"  min="0" step="any" />
+               placeholder="ml / L / …" min="0" step="any" />
+        <input type="number" class="inp-convert" inputmode="decimal"
+               placeholder="in ml" min="0" step="any" title="Optional: enter the volume converted to ml" />
         <button class="btn-remove" title="Remove" aria-label="Remove row">✕</button>
       </div>
       <div class="result-area">
         <span class="result-badge"></span>
         <span class="best-label">✦ Best</span>
       </div>`;
+
     div.querySelector('.btn-remove').addEventListener('click', () => removeRow(div));
+
+    /* When convert field changes, dim/undim the vol field */
+    div.querySelector('.inp-convert').addEventListener('input', () => {
+      syncVolDim(div);
+      clearResults();
+    });
+
     container.appendChild(div);
     rowCount++;
     updateUI();
@@ -580,20 +679,29 @@
     summaryPanel.classList.remove('visible');
   }
 
+  /* Get effective volume in ml for a row.
+     Priority: inp-convert (if filled) → inp-meas (raw value, assumed ml) */
+  function effectiveVolume(row) {
+    const convertVal = parseFloat(row.querySelector('.inp-convert').value);
+    if (Number.isFinite(convertVal) && convertVal > 0) return convertVal;
+    const measVal = parseFloat(row.querySelector('.inp-meas').value);
+    if (Number.isFinite(measVal) && measVal > 0) return measVal;
+    return null;
+  }
+
   /* Calculate */
   function calculate() {
     clearResults();
     const rows    = Array.from(container.querySelectorAll('.item-row'));
     const results = [];
 
-    rows.forEach(row => {
-      const price = parseFloat(row.querySelector('.inp-price').value);
-      const meas  = parseFloat(row.querySelector('.inp-meas').value);
-      if (!Number.isFinite(price) || !Number.isFinite(meas) || price <= 0 || meas <= 0) return;
-      const cpu  = price / meas;
-      const name = row.querySelector('.inp-name').value.trim()
-                   || row.querySelector('.inp-name').placeholder;
-      results.push({ row, cpu, name });
+    rows.forEach((row, i) => {
+      const price  = parseFloat(row.querySelector('.inp-price').value);
+      const vol    = effectiveVolume(row);
+      if (!Number.isFinite(price) || price <= 0 || vol === null) return;
+      const cpu    = price / vol;
+      const label  = `Item ${row.querySelector('.item-num').textContent}`;
+      results.push({ row, cpu, label });
     });
 
     if (results.length < 2) { showToast('Fill in at least 2 rows to compare.'); return; }
@@ -608,12 +716,12 @@
       if (cpu === minCPU) row.classList.add('is-best');
     });
 
-    const winner   = results.find(r => r.cpu === minCPU);
-    const savings  = maxCPU > 0
+    const winner  = results.find(r => r.cpu === minCPU);
+    const savings = maxCPU > 0
       ? `${(((maxCPU - minCPU) / maxCPU) * 100).toFixed(1)}% cheaper`
       : '—';
 
-    sName.textContent = winner.name;
+    sName.textContent = winner.label;
     sCpu.textContent  = `$${minCPU.toFixed(4)} / ml`;
     sSave.textContent = savings;
     summaryPanel.classList.add('visible');
@@ -646,7 +754,11 @@
 
   btnCalc.addEventListener('click', calculate);
   btnReset.addEventListener('click', reset);
-  container.addEventListener('input', clearResults);
+
+  /* Clear results on any input change (except convert which handles its own) */
+  container.addEventListener('input', e => {
+    if (!e.target.classList.contains('inp-convert')) clearResults();
+  });
 
   /* Enter → next field */
   container.addEventListener('keydown', e => {
